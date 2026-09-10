@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gym Manager</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f3f4f6;
+    color:#111827;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+
+.topbar{
+    height:64px;
+    background:#111827;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+}
+.logo{font-size:20px;font-weight:bold}
+.code-box{display:flex;gap:8px}
+.code-box input{
+    width:150px;
+    padding:10px;
+    border:0;
+    border-radius:6px;
+}
+.code-box button{
+    background:#2563eb;
+    color:white;
+    border:0;
+    border-radius:6px;
+    padding:10px 15px;
+}
+
+.login-screen{
+    min-height:calc(100vh - 64px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+.login-card{
+    background:white;
+    width:100%;
+    max-width:430px;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,.1);
+    text-align:center;
+}
+.login-card h1{margin-top:0}
+.price{
+    font-size:38px;
+    font-weight:bold;
+    margin:15px 0 5px;
+}
+.price-description{
+    color:#6b7280;
+    margin-bottom:20px;
+}
+.paypal-btn{
+    width:100%;
+    padding:14px;
+    border:0;
+    border-radius:8px;
+    background:#ffc439;
+    color:#111827;
+    font-weight:bold;
+    margin-top:10px;
+}
+.login-message{
+    margin-top:15px;
+    min-height:22px;
+    color:#dc2626;
+}
+
+.app{
+    display:none;
+    min-height:calc(100vh - 64px);
+}
+.layout{display:flex;min-height:calc(100vh - 64px)}
+.sidebar{
+    width:230px;
+    background:#1f2937;
+    color:white;
+    padding:15px;
+}
+.sidebar button{
+    width:100%;
+    text-align:left;
+    padding:12px;
+    margin-bottom:5px;
+    background:transparent;
+    color:white;
+    border:0;
+    border-radius:6px;
+}
+.sidebar button:hover,
+.sidebar button.active{background:#374151}
+
+.content{
+    flex:1;
+    padding:25px;
+    overflow:auto;
+}
+.page{display:none}
+.page.active{display:block}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:15px;
+    margin-bottom:25px;
+}
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 3px 10px rgba(0,0,0,.06);
+}
+.card-title{color:#6b7280;font-size:14px}
+.card-value{font-size:28px;font-weight:bold;margin-top:8px}
+
+.panel{
+    background:white;
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 3px 10px rgba(0,0,0,.06);
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+}
+.form-group label{
+    display:block;
+    font-size:14px;
+    margin-bottom:5px;
+    font-weight:bold;
+}
+.form-group input,
+.form-group select{
+    width:100%;
+    padding:10px;
+    border:1px solid #d1d5db;
+    border-radius:6px;
+}
+
+.primary{
+    background:#2563eb;
+    color:white;
+    border:0;
+    padding:11px 16px;
+    border-radius:7px;
+}
+.danger{
+    background:#dc2626;
+    color:white;
+    border:0;
+    padding:8px 12px;
+    border-radius:6px;
+}
+.secondary{
+    background:#6b7280;
+    color:white;
+    border:0;
+    padding:8px 12px;
+    border-radius:6px;
+}
+.success{
+    background:#16a34a;
+    color:white;
+    border:0;
+    padding:8px 12px;
+    border-radius:6px;
+}
+
+.table-container{overflow-x:auto}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    padding:12px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+}
+th{background:#f9fafb}
+
+.badge{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:20px;
+    background:#e5e7eb;
+    font-size:12px;
+}
+.paid{background:#dcfce7;color:#166534}
+.pending{background:#fee2e2;color:#991b1b}
+
+.status-access{
+    background:#dcfce7;
+    color:#166534;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:15px;
+}
+.status-expired{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:15px;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    z-index:100;
+}
+.modal-box{
+    background:white;
+    width:100%;
+    max-width:450px;
+    padding:25px;
+    border-radius:12px;
+}
+.modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+}
+
+.empty{
+    text-align:center;
+    padding:25px;
+    color:#6b7280;
+}
+
+.week-row{
+    display:flex;
+    justify-content:space-between;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+}
+
+@media(max-width:700px){
+    .topbar{height:auto;min-height:64px;flex-direction:column;gap:10px;padding:10px}
+    .layout{display:block}
+    .sidebar{width:100%;display:flex;overflow-x:auto;gap:5px}
+    .sidebar button{min-width:max-content;margin:0}
+    .content{padding:15px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <div class="logo">🏋️ Gym Manager</div>
+
+    <div class="code-box">
+        <input id="accessCode" type="text" placeholder="Ingresar código">
+        <button onclick="enterCode()">Ingresar código</button>
+    </div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-card">
+        <h1>Administra tu gimnasio</h1>
+
+        <p>Gestiona miembros, pagos, asistencias y ganancias desde un solo lugar.</p>
+
+        <div class="price">$5</div>
+        <div class="price-description">30 días de acceso</div>
+
+        <button class="paypal-btn" onclick="payWithPayPal()">
+            💳 Pagar $5 con PayPal
+        </button>
+
+        <p style="font-size:13px;color:#6b7280;margin-top:15px">
+            Después de 30 días, deberás realizar un nuevo pago de $5 para continuar utilizando la aplicación.
+        </p>
+
+        <div id="loginMessage" class="login-message"></div>
+    </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app">
+
+    <div class="layout">
+
+        <aside class="sidebar">
+            <button class="active" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+            <button onclick="showPage('members',this)">👥 Miembros</button>
+            <button onclick="showPage('addMember',this)">➕ Agregar miembro</button>
+            <button onclick="showPage('attendance',this)">🕐 Asistencia</button>
+            <button onclick="showPage('payments',this)">💰 Pagos</button>
+            <button onclick="showPage('history',this)">📜 Historial</button>
+            <button onclick="showPage('profits',this)">📈 Ganancias</button>
+            <button onclick="logout()">🚪 Salir</button>
+        </aside>
+
+        <main class="content">
+
+            <!-- DASHBOARD -->
+            <section id="dashboard" class="page active">
+                <h1>Dashboard</h1>
+
+                <div id="accessStatus"></div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-title">Ganancias del mes</div>
+                        <div class="card-value" id="dashboardIncome">$0.00</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Miembros</div>
+                        <div class="card-value" id="dashboardMembers">0</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Pagos cobrados</div>
+                        <div class="card-value" id="dashboardPayments">0</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Asistencias hoy</div>
+                        <div class="card-value" id="dashboardAttendance">0</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Miembros recientes</h2>
+                    <div id="dashboardMembersList"></div>
+                </div>
+            </section>
+
+            <!-- MEMBERS -->
+            <section id="members" class="page">
+                <h1>Miembros</h1>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Membresía</th>
+                                    <th>Pago mensual</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADD MEMBER -->
+            <section id="addMember" class="page">
+                <h1>Agregar nuevo miembro</h1>
+
+                <div class="panel">
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Nombre completo</label>
+                            <input id="memberName" type="text" placeholder="Nombre del miembro">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Membresía</label>
+                            <select id="memberPlan">
+                                <option value="Mensual">Mensual</option>
+                                <option value="Quincenal">Quincenal</option>
+                                <option value="Semanal">Semanal</option>
+                                <option value="Personalizada">Personalizada</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Monto</label>
+                            <input id="memberAmount" type="number" min="0" step="0.01" placeholder="Ej: 20">
+                        </div>
+
+                    </div>
+
+                    <br>
+                    <button class="primary" onclick="addMember()">Agregar miembro</button>
+                </div>
+            </section>
+
+            <!-- ATTENDANCE -->
+            <section id="attendance" class="page">
+                <h1>Registro de asistencia</h1>
+
+                <div class="panel">
+                    <h3>Registrar entrada</h3>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Miembro</label>
+                            <select id="attendanceMember"></select>
+                        </div>
+                    </div>
+
+                    <br>
+
+                    <button class="primary" onclick="registerAttendance()">
+                        Registrar entrada
+                    </button>
+                </div>
+
+                <div class="panel">
+                    <h2>Entradas</h2>
+                    <div id="attendanceList"></div>
+                </div>
+            </section>
+
+            <!-- PAYMENTS -->
+            <section id="payments" class="page">
+                <h1>Pagos mensuales</h1>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Miembro</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HISTORY -->
+            <section id="history" class="page">
+                <h1>Historial</h1>
+
+                <div class="panel">
+                    <h2>Historial de miembros</h2>
+                    <div id="memberHistory"></div>
+                </div>
+
+                <div class="panel">
+                    <h2>Historial de pagos</h2>
+                    <div id="paymentHistory"></div>
+                </div>
+            </section>
+
+            <!-- PROFITS -->
+            <section id="profits" class="page">
+                <h1>Ganancias</h1>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-title">Ganancias totales del mes</div>
+                        <div class="card-value" id="profitsMonthly">$0.00</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Ganancias por semana</h2>
+                    <div id="weeklyProfits"></div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal">
+    <div class="modal-box">
+        <h2>Editar miembro</h2>
+
+        <input id="editId" type="hidden">
+
+        <div class="form-group">
+            <label>Nombre</label>
+            <input id="editName" type="text">
+        </div>
+
+        <br>
+
+        <div class="form-group">
+            <label>Membresía</label>
+            <select id="editPlan">
+                <option value="Mensual">Mensual</option>
+                <option value="Quincenal">Quincenal</option>
+                <option value="Semanal">Semanal</option>
+                <option value="Personalizada">Personalizada</option>
+            </select>
+        </div>
+
+        <br>
+
+        <div class="form-group">
+            <label>Monto mensual</label>
+            <input id="editAmount" type="number" min="0" step="0.01">
+        </div>
+
+        <div class="modal-actions">
+            <button class="secondary" onclick="closeModal()">Cancelar</button>
+            <button class="primary" onclick="saveEdit()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+/* =========================================================
+   CONFIGURACIÓN DE ACCESO
+   ========================================================= */
+
+const CONFIG = {
+    PRICE: 5,
+
+    // Código 444 = solamente 2 accesos gratuitos
+    FREE_CODE: "444",
+    FREE_USES_ALLOWED: 2,
+
+    // Código 733054 = acceso ilimitado
+    UNLIMITED_CODE: "733054",
+
+    // Pago PayPal = 30 días
+    ACCESS_DAYS: 30,
+
+    /*
+      IMPORTANTE:
+      El identificador que proporcionaste anteriormente es:
+      aplicablej-ldj2w_GSKADzzj7SDA444honMPWjAG8eTiliRRc
+
+      Ese identificador NO es necesariamente una URL de checkout
+      de PayPal. Se conserva aquí como referencia de la cuenta/dato
+      proporcionado, pero para recibir pagos automáticamente debes
+      colocar una URL real de PayPal creada para cobrar $5.
+    */
+    PAYPAL_RECEIVER:
+        "aplicablej-ldj2w_GSKADzzj7SDA444honMPWjAG8eTiliRRc",
+
+    /*
+      REEMPLAZA esta dirección por tu enlace real de pago de PayPal.
+      Ejemplo:
+      https://www.paypal.com/ncp/payment/XXXXXXXX
+    */
+    PAYPAL_PAYMENT_URL:
+        "https://www.paypal.com/"
+};
+
+
+/* =========================================================
+   STORAGE
+   ========================================================= */
+
+let members = JSON.parse(localStorage.getItem("gym_members") || "[]");
+let attendance = JSON.parse(localStorage.getItem("gym_attendance") || "[]");
+let payments = JSON.parse(localStorage.getItem("gym_payments") || "[]");
+let profits = JSON.parse(localStorage.getItem("gym_profits") || "[]");
+
+
+function saveMembers(){
+    localStorage.setItem("gym_members", JSON.stringify(members));
+}
+
+function saveAttendance(){
+    localStorage.setItem("gym_attendance", JSON.stringify(attendance));
+}
+
+function savePayments(){
+    localStorage.setItem("gym_payments", JSON.stringify(payments));
+}
+
+function saveProfits(){
+    localStorage.setItem("gym_profits", JSON.stringify(profits));
+}
+
+
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+
+function money(value){
+    return "$" + Number(value || 0).toFixed(2);
+}
+
+function escapeHTML(text){
+    return String(text)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+}
+
+function generateId(){
+    return Date.now().toString() + Math.random().toString(16).slice(2);
+}
+
+function getCurrentMonth(){
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+}
+
+function getToday(){
+    const d = new Date();
+    return d.toISOString().split("T")[0];
+}
+
+
+/* =========================================================
+   ACCESO PAYPAL - 30 DÍAS
+   ========================================================= */
+
+function getPaypalExpiration(){
+    return Number(localStorage.getItem("gym_paypal_expiration") || 0);
+}
+
+function hasValidPaypalAccess(){
+
+    const expiration = getPaypalExpiration();
+
+    if(!expiration){
+        return false;
+    }
+
+    if(Date.now() >= expiration){
+
+        localStorage.removeItem("gym_paypal_expiration");
+
+        return false;
+    }
+
+    return true;
+}
+
+function getPaypalDaysRemaining(){
+
+    const expiration = getPaypalExpiration();
+
+    if(!expiration) return 0;
+
+    const difference = expiration - Date.now();
+
+    return Math.max(
+        0,
+        Math.ceil(difference / (1000 * 60 * 60 * 24))
+    );
+}
+
+function activatePaypalAccess(){
+
+    const expiration =
+        Date.now() +
+        CONFIG.ACCESS_DAYS * 24 * 60 * 60 * 1000;
+
+    localStorage.setItem(
+        "gym_paypal_expiration",
+        String(expiration)
+    );
+}
+
+
+/* =========================================================
+   CÓDIGO 444
+   ========================================================= */
+
+function getFreeUses(){
+
+    return Number(
+        localStorage.getItem("gym_free_uses") || "0"
+    );
+}
+
+function getFreeUsesRemaining(){
+
+    return Math.max(
+        0,
+        CONFIG.FREE_USES_ALLOWED - getFreeUses()
+    );
+}
+
+
+/* =========================================================
+   CÓDIGO 733054
+   ========================================================= */
+
+function hasUnlimitedAccess(){
+
+    return localStorage.getItem(
+        "gym_unlimited_access"
+    ) === "true";
+}
+
+
+/* =========================================================
+   ENTRAR CON CÓDIGO
+   ========================================================= */
+
+function enterCode(){
+
+    const input =
+        document.getElementById("accessCode");
+
+    const code = input.value.trim();
+
+    const message =
+        document.getElementById("loginMessage");
+
+
+    /* Código ilimitado */
+
+    if(code === CONFIG.UNLIMITED_CODE){
+
+        localStorage.setItem(
+            "gym_unlimited_access",
+            "true"
+        );
+
+        message.style.color = "#16a34a";
+        message.textContent =
+            "Acceso ilimitado activado.";
+
+        openApplication();
+
+        return;
+    }
+
+
+    /* Código 444 */
+
+    if(code === CONFIG.FREE_CODE){
+
+        const used = getFreeUses();
+
+        if(used >= CONFIG.FREE_USES_ALLOWED){
+
+            message.style.color = "#dc2626";
+
+            message.textContent =
+                "El código 444 ya utilizó sus 2 accesos gratuitos.";
+
+            return;
+        }
+
+        const newUses = used + 1;
+
+        localStorage.setItem(
+            "gym_free_uses",
+            String(newUses)
+        );
+
+        message.style.color = "#16a34a";
+
+        message.textContent =
+            "Acceso gratuito autorizado. " +
+            "Usos restantes: " +
+            (CONFIG.FREE_USES_ALLOWED - newUses);
+
+        openApplication();
+
+        return;
+    }
+
+
+    /* Código incorrecto */
+
+    message.style.color = "#dc2626";
+
+    message.textContent =
+        "Código incorrecto.";
+}
+
+
+/* =========================================================
+   PAYPAL
+   ========================================================= */
+
+function payWithPayPal(){
+
+    /*
+      Abre el enlace de PayPal configurado.
+    */
+
+    window.open(
+        CONFIG.PAYPAL_PAYMENT_URL,
+        "_blank"
+    );
+
+    /*
+      IMPORTANTE:
+      Esta confirmación es solamente para el prototipo.
+
+      En una aplicación real, NO se debe confiar en este botón
+      para confirmar un pago. PayPal debe confirmar el pago mediante
+      su sistema/backend/webhook.
+    */
+
+    setTimeout(function(){
+
+        const paid = confirm(
+            "¿Completaste el pago de $" +
+            CONFIG.PRICE +
+            " en PayPal?"
+        );
+
+        if(!paid){
+            return;
+        }
+
+        activatePaypalAccess();
+
+        document.getElementById("loginMessage").style.color =
+            "#16a34a";
+
+        document.getElementById("loginMessage").textContent =
+            "Pago registrado. Tienes 30 días de acceso.";
+
+        openApplication();
+
+    }, 1000);
+}
+
+
+/* =========================================================
+   COMPROBAR ACCESO
+   ========================================================= */
+
+function checkAccess(){
+
+    if(hasUnlimitedAccess()){
+        return true;
+    }
+
+    if(hasValidPaypalAccess()){
+        return true;
+    }
+
+    return false;
+}
+
+
+/* =========================================================
+   ABRIR APP
+   ========================================================= */
+
+function openApplication(){
+
+    document.getElementById("loginScreen").style.display =
+        "none";
+
+    document.getElementById("app").style.display =
+        "block";
+
+    renderEverything();
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+function logout(){
+
+    /*
+      MUY IMPORTANTE:
+
+      Salir de la aplicación NO elimina:
+      - los accesos gratuitos utilizados
+      - el acceso ilimitado
+      - los días restantes del pago PayPal
+
+      Solamente cierra la sesión visual.
+    */
+
+    document.getElementById("app").style.display =
+        "none";
+
+    document.getElementById("loginScreen").style.display =
+        "flex";
+
+    document.getElementById("accessCode").value = "";
+
+    updateLoginStatus();
+}
+
+
+/* =========================================================
+   CONTROL DE EXPIRACIÓN
+   ========================================================= */
+
+function checkExpirationBeforeAction(){
+
+    if(hasUnlimitedAccess()){
+        return true;
+    }
+
+    if(hasValidPaypalAccess()){
+        return true;
+    }
+
+    document.getElementById("app").style.display =
+        "none";
+
+    document.getElementById("loginScreen").style.display =
+        "flex";
+
+    document.getElementById("loginMessage").style.color =
+        "#dc2626";
+
+    document.getElementById("loginMessage").textContent =
+        "Tu acceso ha vencido. Debes pagar nuevamente $" +
+        CONFIG.PRICE +
+        " para obtener otros 30 días.";
+
+    updateLoginStatus();
+
+    return false;
+}
+
+
+/* =========================================================
+   ESTADO DEL LOGIN
+   ========================================================= */
+
+function updateLoginStatus(){
+
+    const message =
+        document.getElementById("loginMessage");
+
+    if(hasUnlimitedAccess()){
+
+        message.style.color = "#16a34a";
+
+        message.textContent =
+            "Tienes acceso ilimitado mediante el código 733054.";
+
+        return;
+    }
+
+    if(hasValidPaypalAccess()){
+
+        const days =
+            getPaypalDaysRemaining();
+
+        message.style.color = "#16a34a";
+
+        message.textContent =
+            "Tu acceso PayPal está activo. " +
+            "Días restantes: " +
+            days;
+
+        return;
+    }
+
+    const remaining =
+        getFreeUsesRemaining();
+
+    if(remaining > 0){
+
+        message.style.color = "#6b7280";
+
+        message.textContent =
+            "Código 444: tienes " +
+            remaining +
+            " acceso(s) gratuito(s) restante(s).";
+
+        return;
+    }
+
+    message.style.color = "#6b7280";
+
+    message.textContent =
+        "Paga $" +
+        CONFIG.PRICE +
+        " para obtener 30 días de acceso.";
+}
+
+
+/* =========================================================
+   NAVEGACIÓN
+   ========================================================= */
+
+function showPage(pageId, button){
+
+    if(!checkExpirationBeforeAction()){
+        return;
+    }
+
+    document.querySelectorAll(".page")
+        .forEach(page => page.classList.remove("active"));
+
+    document.getElementById(pageId)
+        .classList.add("active");
+
+    document.querySelectorAll(".sidebar button")
+        .forEach(btn => btn.classList.remove("active"));
+
+    if(button){
+        button.classList.add("active");
+    }
+
+    renderEverything();
+}
+
+
+/* =========================================================
+   MIEMBROS
+   ========================================================= */
+
+function addMember(){
+
+    if(!checkExpirationBeforeAction()){
+        return;
+    }
+
+    const name =
+        document.getElementById("memberName").value.trim();
+
+    const plan =
+        document.getElementById("memberPlan").value;
+
+    const amount =
+        Number(document.getElementById("memberAmount").value);
+
+
+    if(!name){
+
+        alert("Ingresa el nombre del miembro.");
+
+        return;
+    }
+
+    if(amount < 0 || isNaN(amount)){
+
+        alert("Ingresa un monto válido.");
+
+        return;
+    }
+
+
+    const member = {
+
+        id: generateId(),
+
+        name: name,
+
+        plan: plan,
+
+        amount: amount,
+
+        createdAt: new Date().toISOString(),
+
+        deleted: false
+    };
+
+
+    members.push(member);
+
+    saveMembers();
+
+
+    document.getElementById("memberName").value = "";
+    document.getElementById("memberAmount").value = "";
+
+
+    alert("Miembro agregado correctamente.");
+
+    renderEverything();
+
+    showPage(
+        "members",
+        document.querySelector(".sidebar button:nth-child(2)")
+    );
+}
+
+
+/* =========================================================
+   EDITAR MIEMBRO
+   ========================================================= */
+
+function openEdit(id){
+
+    if(!checkExpirationBeforeAction()){
+        return;
+    }
+
+    const member =
+        members.find(m => m.id === id);
+
+    if(!member) return;
+
+
+    document.getElementById("editId").value =
+        member.id;
+
+    document.getElementById("editName").value =
+        member.name;
+
+    document.getElementById("editPlan").value =
+        member.plan;
+
+    document.getElementById("editAmount").value =
+        member.amount;
+
+
+    document.getElementById("editModal").style.display =
+        "flex";
+}
+
+function closeModal(){
+
+    document.getElementById("editModal").style.display =
+        "none";
+}
+
+function saveEdit(){
+
+    if(!checkExpirationBeforeAction()){
+        return;
+    }
+
+    const id =
+        document.getElementById("editId").value;
+
+    const member =
+        members.find(m => m.id === id);
+
+    if(!member) return;
+
+
+    member.name =
+        document.getElementById("editName").value.trim();
+
+    member.plan =
+        document.getElementById("editPlan").value;
+
+    member.amount =
+        Number(document.getElementById("editAmount").value);
+
+
+    saveMembers();
+
+    closeModal();
+
+    renderEverything();
+}
+
+
+/* =========================================================
+   ELIMINAR / RESTAURAR
+   ========================================================= */
+
+function deleteMember(id){
+
+    if(!checkExpirationBeforeAction()){
+        return;
+    }
+
+    if(!confirm("¿Eliminar este miembro?")){
+        return;
+    }
+
+    const member =
+        members.find(m => m.id === id);
+
+    if(member){
+
+        member.deleted = true;
+
+        member.deletedAt =
+            new Date().toISOString();
+    }
+
+    saveMembers();
+
+    renderEverything();
+}
+
+function restoreMember(id){
+
+    if(!checkExpirationBeforeAction()){
+        return;
+    }
+
+    const member =
+        members.find(m => m.id === id);
+
+    if(member){
+
+        member.deleted = false;
+
+        delete member.deletedAt;
+    }
+
+    saveMembers();
+
+    renderEverything();
+}
+
+
+/* =========================================================
+   PAGOS
+   ========================================================= */
+
+function isPaidThisMonth(memberId){
+
+    const month =
+        getCurrentMonth();
+
+    return payments.some(payment =>
+        payment.memberId === memberId &&
+        payment.month === month &&
+        payment.status === "paid"
+    );
+}
+
+function markPayment(memberId){
+
+    if(!checkExpirationBeforeAction()){
+        return;
+    }
+
+    const member =
+        members.find(m => m.id === memberId);
+
+    if(!member) return;
+
+
+    const month =
+        getCurrentMonth();
+
+
+    if(isPaidThisMonth(memberId)){
+
+        alert("Este miembro ya tiene el pago registrado este mes.");
+
+        return;
+    }
+
+
+    const payment = {
+
+        id: generateId(),
+
+        memberId: member.id,
+
+        memberName: member.name,
+
+        amount: Number(member.amount),
+
+        month: month,
+
+        date: new Date().toISOString(),
+
+        status: "paid"
+    };
+
+
+    payments.push(payment);
+
+    savePayments();
+
+
+    profits.push({
+
+        id: generateId(),
+
+        type: "membership",
+
+        memberId: member.id,
+
+        memberName: member.name,
+
+        amount: Number(member.amount),
+
+        date: new Date().toISOString()
+    });
+
+    saveProfits();
+
+
+    renderEverything();
+}
+
+
+/* =========================================================
+   ASISTENCIA
+   ========================================================= */
+
+function registerAttendance(){
+
+    if(!checkExpirationBeforeAction()){
+        return;
+    }
+
+    const memberId =
+        document.getElementById("attendanceMember").value;
+
+    const member =
+        members.find(m => m.id === memberId);
+
+    if(!member){
+
+        alert("Selecciona un miembro.");
+
+        return;
+    }
+
+
+    const now = new Date();
+
+
+    attendance.unshift({
+
+        id: generateId(),
+
+        memberId: member.id,
+
+        memberName: member.name,
+
+        date: now.toISOString(),
+
+        time: now.toLocaleTimeString("es-ES", {
+            hour:"2-digit",
+            minute:"2-digit"
+        })
+    });
+
+
+    saveAttendance();
+
+    renderEverything();
+}
+
+
+/* =========================================================
+   INGRESOS
+   ========================================================= */
+
+function getMonthlyPayments(){
+
+    const month =
+        getCurrentMonth();
+
+    return payments.filter(payment =>
+        payment.month === month &&
+        payment.status === "paid"
+    );
+}
+
+function getMonthlyIncome(){
+
+    return getMonthlyPayments()
+        .reduce(
+            (total,payment) =>
+                total + Number(payment.amount || 0),
+            0
+        );
+}
+
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+function renderDashboard(){
+
+    const activeMembers =
+        members.filter(m => !m.deleted);
+
+
+    document.getElementById("dashboardIncome")
+        .textContent =
+        money(getMonthlyIncome());
+
+
+    document.getElementById("dashboardMembers")
+        .textContent =
+        activeMembers.length;
+
+
+    document.getElementById("dashboardPayments")
+        .textContent =
+        getMonthlyPayments().length;
+
+
+    const today =
+        getToday();
+
+
+    const todayAttendance =
+        attendance.filter(a =>
+            a.date.startsWith(today)
+        );
+
+
+    document.getElementById("dashboardAttendance")
+        .textContent =
+        todayAttendance.length;
+
+
+    const list =
+        document.getElementById("dashboardMembersList");
+
+
+    if(!activeMembers.length){
+
+        list.innerHTML =
+            '<div class="empty">No hay miembros registrados.</div>';
+
+        return;
+    }
+
+
+    list.innerHTML =
+        activeMembers.slice(-5).reverse().map(member => `
+            <div style="padding:10px 0;border-bottom:1px solid #eee">
+                <strong>${escapeHTML(member.name)}</strong>
+                <br>
+                <small>
+                    ${escapeHTML(member.plan)}
+                    · ${money(member.amount)}
+                </small>
+            </div>
+        `).join("");
+}
+
+
+/* =========================================================
+   MIEMBROS
+   ========================================================= */
+
+function renderMembers(){
+
+    const table =
+        document.getElementById("membersTable");
+
+
+    const allMembers = members;
+
+
+    if(!allMembers.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty">
+                    No hay miembros registrados.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        allMembers.map(member => {
+
+            const paid =
+                isPaidThisMonth(member.id);
+
+            return `
+                <tr style="${member.deleted ? 'opacity:.55' : ''}">
+
+                    <td>
+                        ${escapeHTML(member.name)}
+                        ${member.deleted
+                            ? '<br><small>Eliminado</small>'
+                            : ''}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(member.plan)}
+                    </td>
+
+                    <td>
+                        ${money(member.amount)}
+                    </td>
+
+                    <td>
+                        ${
+                            member.deleted
+                            ? '<span class="badge">Eliminado</span>'
+                            : paid
+                            ? '<span class="badge paid">Pagado</span>'
+                            : '<span class="badge pending">Pendiente</span>'
+                        }
+                    </td>
+
+                    <td>
+
+                        ${
+                            member.deleted
+
+                            ?
+
+                            `<button
+                                class="success"
+                                onclick="restoreMember('${member.id}')">
+                                Restaurar
+                            </button>`
+
+                            :
+
+                            `
+                            <button
+                                class="secondary"
+                                onclick="openEdit('${member.id}')">
+                                Editar
+                            </button>
+
+                            <button
+                                class="danger"
+                                onclick="deleteMember('${member.id}')">
+                                Eliminar
+                            </button>
+                            `
+                        }
+
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+}
+
+
+/* =========================================================
+   SELECT DE ASISTENCIA
+   ========================================================= */
+
+function renderAttendanceSelect(){
+
+    const select =
+        document.getElementById("attendanceMember");
+
+
+    const activeMembers =
+        members.filter(m => !m.deleted);
+
+
+    select.innerHTML =
+        '<option value="">Seleccionar miembro</option>' +
+
+        activeMembers.map(member => `
+            <option value="${member.id}">
+                ${escapeHTML(member.name)}
+            </option>
+        `).join("");
+}
+
+
+/* =========================================================
+   LISTA DE ASISTENCIA
+   ========================================================= */
+
+function renderAttendance(){
+
+    const container =
+        document.getElementById("attendanceList");
+
+
+    if(!attendance.length){
+
+        container.innerHTML =
+            '<div class="empty">No hay entradas registradas.</div>';
+
+        return;
+    }
+
+
+    container.innerHTML =
+        attendance.slice(0,50).map(item => {
+
+            const date =
+                new Date(item.date);
+
+
+            return `
+                <div style="
+                    padding:12px 0;
+                    border-bottom:1px solid #eee;
+                ">
+
+                    <strong>
+                        ${escapeHTML(item.memberName)}
+                    </strong>
+
+                    <div style="color:#6b7280;font-size:13px">
+                        ${date.toLocaleDateString("es-ES")}
+                        · ${escapeHTML(item.time)}
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+}
+
+
+/* =========================================================
+   TABLA DE PAGOS
+   ========================================================= */
+
+function renderPayments(){
+
+    const table =
+        document.getElementById("paymentsTable");
+
+
+    const activeMembers =
+        members.filter(m => !m.deleted);
+
+
+    if(!activeMembers.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty">
+                    No hay miembros.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        activeMembers.map(member => {
+
+            const paid =
+                isPaidThisMonth(member.id);
+
+
+            return `
+                <tr>
+
+                    <td>
+                        ${escapeHTML(member.name)}
+                    </td>
+
+                    <td>
+                        ${money(member.amount)}
+                    </td>
+
+                    <td>
+                        ${
+                            paid
+                            ? '<span class="badge paid">Cobrado</span>'
+                            : '<span class="badge pending">Pendiente</span>'
+                        }
+                    </td>
+
+                    <td>
+
+                        ${
+                            paid
+
+                            ?
+
+                            '<span style="color:#16a34a">✓ Pagado este mes</span>'
+
+                            :
+
+                            `<button
+                                class="success"
+                                onclick="markPayment('${member.id}')">
+                                Marcar como cobrado
+                            </button>`
+                        }
+
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+}
+
+
+/* =========================================================
+   HISTORIAL
+   ========================================================= */
+
+function renderHistory(){
+
+    const memberHistory =
+        document.getElementById("memberHistory");
+
+    const paymentHistory =
+        document.getElementById("paymentHistory");
+
+
+    if(!members.length){
+
+        memberHistory.innerHTML =
+            '<div class="empty">No hay historial.</div>';
+
+    }else{
+
+        memberHistory.innerHTML =
+            members.slice().reverse().map(member => {
+
+                const created =
+                    new Date(member.createdAt)
+                    .toLocaleDateString("es-ES");
+
+
+                return `
+                    <div style="
+                        padding:12px 0;
+                        border-bottom:1px solid #eee;
+                    ">
+
+                        <strong>
+                            ${escapeHTML(member.name)}
+                        </strong>
+
+                        <div style="font-size:13px;color:#6b7280">
+                            Registrado: ${created}
+                            · ${escapeHTML(member.plan)}
+                            · ${money(member.amount)}
+                        </div>
+
+                    </div>
+                `;
+
+            }).join("");
+    }
+
+
+    if(!payments.length){
+
+        paymentHistory.innerHTML =
+            '<div class="empty">No hay pagos registrados.</div>';
+
+    }else{
+
+        paymentHistory.innerHTML =
+            payments.slice().reverse().map(payment => {
+
+                const date =
+                    new Date(payment.date)
+                    .toLocaleDateString("es-ES");
+
+
+                return `
+                    <div style="
+                        padding:12px 0;
+                        border-bottom:1px solid #eee;
+                    ">
+
+                        <strong>
+                            ${escapeHTML(payment.memberName)}
+                        </strong>
+
+                        <div style="font-size:13px;color:#6b7280">
+                            ${date}
+                            · ${escapeHTML(payment.month)}
+                            · ${money(payment.amount)}
+                        </div>
+
+                    </div>
+                `;
+
+            }).join("");
+    }
+}
+
+
+/* =========================================================
+   GANANCIAS SEMANALES
+   ========================================================= */
+
+function getWeekNumber(date){
+
+    const d =
+        new Date(Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate()
+        ));
+
+    const dayNum =
+        d.getUTCDay() || 7;
+
+    d.setUTCDate(
+        d.getUTCDate() + 4 - dayNum
+    );
+
+    const yearStart =
+        new Date(
+            Date.UTC(
+                d.getUTCFullYear(),
+                0,
+                1
+            )
+        );
+
+    return Math.ceil(
+        (
+            (
+                (d - yearStart) / 86400000
+            ) + 1
+        ) / 7
+    );
+}
+
+function updateWeeklyProfits(){
+
+    const container =
+        document.getElementById("weeklyProfits");
+
+
+    const currentMonth =
+        getCurrentMonth();
+
+
+    const currentPayments =
+        payments.filter(p =>
+            p.month === currentMonth &&
+            p.status === "paid"
+        );
+
+
+    const weeks = {};
+
+
+    currentPayments.forEach(payment => {
+
+        const date =
+            new Date(payment.date);
+
+        const week =
+            getWeekNumber(date);
+
+        if(!weeks[week]){
+            weeks[week] = 0;
+        }
+
+        weeks[week] +=
+            Number(payment.amount || 0);
+    });
+
+
+    const weekNumbers =
+        Object.keys(weeks)
+            .map(Number)
+            .sort((a,b) => a-b);
+
+
+    if(!weekNumbers.length){
+
+        container.innerHTML =
+            '<div class="empty">Todavía no hay ganancias registradas este mes.</div>';
+
+        return;
+    }
+
+
+    container.innerHTML =
+        weekNumbers.map(week => `
+            <div class="week-row">
+
+                <span>
+                    Semana ${week}
+                </span>
+
+                <strong>
+                    ${money(weeks[week])}
+                </strong>
+
+            </div>
+        `).join("");
+}
+
+
+/* =========================================================
+   GANANCIAS
+   ========================================================= */
+
+function renderProfits(){
+
+    document.getElementById("profitsMonthly")
+        .textContent =
+        money(getMonthlyIncome());
+
+    updateWeeklyProfits();
+}
+
+
+/* =========================================================
+   ESTADO DE ACCESO DENTRO DE LA APP
+   ========================================================= */
+
+function renderAccessStatus(){
+
+    const box =
+        document.getElementById("accessStatus");
+
+
+    if(hasUnlimitedAccess()){
+
+        box.className =
+            "status-access";
+
+        box.textContent =
+            "🔓 Acceso ilimitado activo mediante el código 733054.";
+
+        return;
+    }
+
+
+    if(hasValidPaypalAccess()){
+
+        const expiration =
+            new Date(getPaypalExpiration());
+
+        const days =
+            getPaypalDaysRemaining();
+
+
+        box.className =
+            "status-access";
+
+        box.innerHTML =
+            "💳 Acceso PayPal activo. " +
+            "Te quedan <strong>" +
+            days +
+            " días</strong>. " +
+            "Vence el " +
+            expiration.toLocaleDateString("es-ES") +
+            ".";
+
+        return;
+    }
+
+
+    box.className =
+        "status-expired";
+
+    box.textContent =
+        "⚠️ Tu acceso ha vencido. Debes pagar $" +
+        CONFIG.PRICE +
+        " nuevamente para obtener otros 30 días.";
+}
+
+
+/* =========================================================
+   RENDER TODO
+   ========================================================= */
+
+function renderEverything(){
+
+    renderAccessStatus();
+
+    renderDashboard();
+
+    renderMembers();
+
+    renderAttendanceSelect();
+
+    renderAttendance();
+
+    renderPayments();
+
+    renderHistory();
+
+    renderProfits();
+}
+
+
+/* =========================================================
+   INICIO
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    /*
+      Solamente se abre automáticamente si:
+      - código 733054 fue activado anteriormente, o
+      - existe un pago PayPal todavía válido.
+
+      El código 444 NO abre automáticamente la aplicación
+      al recargar la página. Sus accesos se consumen únicamente
+      cuando se introduce el código.
+    */
+
+    if(hasUnlimitedAccess()){
+
+        openApplication();
+
+        return;
+    }
+
+
+    if(hasValidPaypalAccess()){
+
+        openApplication();
+
+        return;
+    }
+
+
+    updateLoginStatus();
+});
+
+
+/* =========================================================
+   VERIFICACIÓN PERIÓDICA DE EXPIRACIÓN
+   ========================================================= */
+
+setInterval(function(){
+
+    if(
+        document.getElementById("app").style.display === "block"
+    ){
+
+        if(!hasUnlimitedAccess() && !hasValidPaypalAccess()){
+
+            document.getElementById("app").style.display =
+                "none";
+
+            document.getElementById("loginScreen").style.display =
+                "flex";
+
+            document.getElementById("loginMessage").style.color =
+                "#dc2626";
+
+            document.getElementById("loginMessage").textContent =
+                "Tu acceso de 30 días ha vencido. " +
+                "Debes pagar nuevamente $" +
+                CONFIG.PRICE +
+                ".";
+
+            updateLoginStatus();
+        }
+    }
+
+}, 60000);
+
+
+/* =========================================================
+   TECLA ENTER PARA CÓDIGO
+   ========================================================= */
+
+document.getElementById("accessCode")
+    .addEventListener("keydown", function(event){
+
+        if(event.key === "Enter"){
+            enterCode();
+        }
+
+    });
+
+</script>
+
+</body>
+                  </html>
