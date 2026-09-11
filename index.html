@@ -2086,7 +2086,7 @@ document.getElementById("accessCode")
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAcshlTDsCAYUPcmYnUJuTfjpK39yi3Zrw",
@@ -2105,6 +2105,18 @@ import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gsta
   window.firebaseApp = firebaseApp;
   window.firebaseAuth = firebaseAuth;
   window.firebaseDB = firebaseDB;
+    window.saveMemberToFirebase = async (member) => {
+    const user = firebaseAuth.currentUser;
+
+    if (!user) {
+        throw new Error("Usuario de Firebase no conectado.");
+    }
+
+    await addDoc(collection(firebaseDB, "members"), {
+        ...member,
+        userId: user.uid
+    });
+};
     onAuthStateChanged(firebaseAuth, (user) => {
   if (user) {
     console.log("Usuario conectado:", user.email);
