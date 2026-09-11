@@ -2085,7 +2085,7 @@ document.getElementById("accessCode")
 </script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
   import { getFirestore } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -2105,12 +2105,13 @@ document.getElementById("accessCode")
   window.firebaseApp = firebaseApp;
   window.firebaseAuth = firebaseAuth;
   window.firebaseDB = firebaseDB;
-    firebaseAuth.onAuthStateChanged((user) => {
+    onAuthStateChanged(firebaseAuth, (user) => {
   if (user) {
     console.log("Usuario conectado:", user.email);
   } else {
     console.log("No hay usuario conectado");
   }
 });
+    
 </body>
                   </html>
