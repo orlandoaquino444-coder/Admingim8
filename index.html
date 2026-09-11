@@ -2081,7 +2081,29 @@ document.getElementById("accessCode")
         }
 
     });
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyAcshlTDsCAYUPcmYnUJuTfjpK39yi3Zrw",
+    authDomain: "gym-manager-9ce3e.firebaseapp.com",
+    projectId: "gym-manager-9ce3e",
+    storageBucket: "gym-manager-9ce3e.firebasestorage.app",
+    messagingSenderId: "926920227499",
+    appId: "1:926920227499:web:c365da9d51c046062315ee",
+    measurementId: "G-3Q0N5X5E2H"
+  };
+
+  const firebaseApp = initializeApp(firebaseConfig);
+  const firebaseAuth = getAuth(firebaseApp);
+  const firebaseDB = getFirestore(firebaseApp);
+
+  window.firebaseApp = firebaseApp;
+  window.firebaseAuth = firebaseAuth;
+  window.firebaseDB = firebaseDB;
+</script>
 </script>
 
 </body>
