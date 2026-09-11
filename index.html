@@ -1081,9 +1081,18 @@ function addMember(){
     };
 
 
-    members.push(member);
+    try {
+    await window.saveMemberToFirebase(member);
+} catch(error) {
+    console.error("Error guardando miembro:", error);
+    alert("No se pudo guardar el miembro en Firebase.");
+    return;
+}
 
-    saveMembers();
+members.push(member);
+saveMembers();
+
+
 
 
     document.getElementById("memberName").value = "";
