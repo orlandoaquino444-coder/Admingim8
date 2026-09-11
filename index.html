@@ -2085,7 +2085,7 @@ document.getElementById("accessCode")
 </script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
   import { getFirestore } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -2109,7 +2109,9 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
   if (user) {
     console.log("Usuario conectado:", user.email);
   } else {
-    console.log("No hay usuario conectado");
+    signInAnonymously(firebaseAuth)
+        .then(() => console.log("Acceso anónimo activado"))
+        .catch((error) => console.error("Error de acceso anónimo:", error));
   }
 });
     
